@@ -1,0 +1,145 @@
+.finale {
+  position: relative;
+  text-align: center;
+  padding-bottom: 5rem;
+  overflow: hidden;
+}
+
+.finale__title {
+  font-size: clamp(1.7rem, 5.5vw, 2.4rem);
+  color: var(--altin);
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.finale__message {
+  position: relative;
+  z-index: 1;
+  font-size: clamp(0.95rem, 3.5vw, 1.1rem);
+  color: var(--krem-muted);
+  line-height: 1.75;
+  margin: 1.5rem auto 1.75rem;
+  max-width: 36ch;
+}
+
+.finale__word {
+  display: inline;
+}
+
+.finale__signature {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.15rem;
+  color: var(--altin-soft);
+  margin-bottom: 2rem;
+}
+
+/* Gül */
+.rose {
+  position: relative;
+  z-index: 1;
+  width: 120px;
+  height: 140px;
+  margin: 0 auto;
+}
+
+.rose__svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.rose__petal {
+  transform-origin: 60px 55px;
+  transform-box: fill-box;
+}
+
+.rose__petal--outer {
+  animation: rose-open-outer 3.5s ease-out infinite alternate;
+}
+
+.rose__petal--mid {
+  animation: rose-open-mid 3.5s ease-out infinite alternate;
+}
+
+.rose__petal--center {
+  animation: rose-glow 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes rose-open-outer {
+  from {
+    transform: scale(0.85);
+    opacity: 0.85;
+  }
+  to {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
+@keyframes rose-open-mid {
+  from {
+    transform: scale(0.7);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes rose-glow {
+  from {
+    opacity: 0.7;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+/* Düşen kalpler / yapraklar */
+.falling-hearts {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.falling-hearts__item {
+  position: absolute;
+  top: -10%;
+  color: rgba(212, 162, 76, 0.45);
+  animation-name: heart-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes heart-fall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.7;
+  }
+  90% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(110vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rose__petal--outer,
+  .rose__petal--mid,
+  .rose__petal--center,
+  .falling-hearts__item {
+    animation: none;
+  }
+}

@@ -5,6 +5,18 @@
   min-height: 100dvh;
 }
 
+.app--locked {
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* Bekleme ekranında sayfa kaydırılamaz */
+body.is-locked {
+  overflow: hidden;
+  height: 100%;
+  touch-action: none;
+}
+
 #journey {
   scroll-margin-top: 0.5rem;
 }

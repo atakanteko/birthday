@@ -1,77 +1,50 @@
-import { useEffect } from "react";
-import { content } from "../content";
+import { useEffect, useRef } from "react";
+import { bindAudioElement, ensureMusicPlaying, musicSrc } from "../music";
+import "./BackgroundMusic.css";
 
 /**
- * Modül seviyesinde tek Audio — StrictMode/HMR yüzünden
- * üst üste binmeyi (çift çalma / “karışma”) önler.
- */
-let sharedAudio = null;
-let unlockBound = false;
-
-function getSharedAudio() {
-  if (!sharedAudio) {
-    sharedAudio = new Audio(content.music.file);
-    sharedAudio.loop = true;
-    sharedAudio.preload = "auto";
-    sharedAudio.volume = 1;
-  }
-  return sharedAudio;
-}
-
-function tryPlay() {
-  const audio = getSharedAudio();
-  audio.loop = true;
-  if (!audio.paused) return Promise.resolve(true);
-  return audio.play().then(() => true).catch(() => false);
-}
-
-function bindUnlockOnce() {
-  if (unlockBound) return;
-  unlockBound = true;
-
-  const events = ["pointerdown", "keydown"];
-
-  const unlock = () => {
-    tryPlay().then((ok) => {
-      if (ok) {
-        events.forEach((e) => document.removeEventListener(e, unlock));
-      }
-    });
-  };
-
-  events.forEach((e) =>
-    document.addEventListener(e, unlock, { passive: true })
-  );
-}
-
-/**
- * Görünmez arka plan müziği — buton yok, tek kaynak, sürekli loop.
+ * Görünmez arka plan müziği — buton / “dokun” katmanı yok.
+ * Mümkünse hemen çalar; tarayıcı engellerse sessizce ilk etkileşimde ses açılır.
  */
 function BackgroundMusic() {
-  useEffect(() => {
-    const audio = getSharedAudio();
+  const audioRef = useRef(null);
 
-    // Hemen dene; engellenirse ilk etkileşimde başlat
-    tryPlay().then((ok) => {
-      if (!ok) bindUnlockOnce();
-    });
+  useEffect(() => {
+    const el = audioRef.current;
+    if (!el) return undefined;
+
+    bindAudioElement(el);
+    ensureMusicPlaying();
+
+    // Periyodik yeniden dene (bazı tarayıcılarda geç yükleme)
+    const retry = window.setInterval(() => {
+      ensureMusicPlaying();
+    }, 2000);
 
     const onVisible = () => {
       if (document.visibilityState === "visible") {
-        tryPlay();
+        ensureMusicPlaying();
       }
     };
     document.addEventListener("visibilitychange", onVisible);
 
-    // StrictMode cleanup'ta pause ETME — ikinci mount'ta sessizlik / çift instance olur
     return () => {
+      window.clearInterval(retry);
       document.removeEventListener("visibilitychange", onVisible);
-      // audio'yu bilerek bırakıyoruz (singleton)
-      void audio;
     };
   }, []);
 
-  return null;
+  return (
+    <audio
+      ref={audioRef}
+      id="bg-music"
+      src={musicSrc}
+      loop
+      preload="auto"
+      playsInline
+      autoPlay
+    />
+  );
 }
 
 export default BackgroundMusic;

@@ -24,9 +24,9 @@ function getRemaining(targetMs) {
 /**
  * Doğum gününe geri sayım.
  * Süre dolunca confetti + done metinleri + buton.
- * Buton: yumuşak kaydırma (onStart).
+ * İçerik App tarafında kilidi açılana kadar DOM'da yok.
  */
-function Countdown({ onStart }) {
+function Countdown({ onStart, onUnlocked }) {
   const targetMs = useMemo(() => new Date(content.birthday).getTime(), []);
   const [testMode] = useState(isTestMode);
   const [time, setTime] = useState(() =>
@@ -45,9 +45,12 @@ function Countdown({ onStart }) {
     return () => clearInterval(id);
   }, [targetMs, testMode, time.done]);
 
-  // Süre dolunca confetti (bir kez)
+  // Süre dolunca / test: üst bileşene bildir + confetti
   useEffect(() => {
-    if (!time.done || celebrated.current) return;
+    if (!time.done) return;
+    onUnlocked?.();
+
+    if (celebrated.current) return;
     celebrated.current = true;
 
     const colors = ["#d4a24c", "#6d1a36", "#fbf3e4", "#e8c87a"];
@@ -61,7 +64,7 @@ function Countdown({ onStart }) {
       confetti({ particleCount: 80, angle: 60, spread: 0.1, colors });
       confetti({ particleCount: 80, angle: 120, spread: 0.9, colors });
     }, 350);
-  }, [time.done]);
+  }, [time.done, onUnlocked]);
 
   const pad = (n) => String(n).padStart(2, "0");
 
